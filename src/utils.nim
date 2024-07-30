@@ -24,12 +24,16 @@ template draw*(drawCode) =
 template deinitialize*(deinitCode: untyped) =
   deinitCode
 
-type
-  Vector2i* = tuple
-    x, y: int
 
-proc to2I*(v: Vector2): Vector2i =
-  (x: v.x.int, y: v.y.int)
+proc isInBounds*(minX, maxX, minY, maxY: int32, pos: Vector2i): bool =
+  pos.x >= minX and pos.x <= maxX and pos.y >= minY and pos.y <= maxY
 
-proc to2F*(v: Vector2i): Vector2 =
-  Vector2(x: v.x.float32, y: v.y.float32)
+proc isInBounds*(rect: Rectangle, pos: Vector2): bool =
+  isInBounds(rect.x.int32, rect.x.int32 + rect.width.int32, rect.y.int32, rect.y.int32 + rect.height.int32, pos.to2I)
+  
+proc isInBounds*(rect: Rectangle, pos: Vector2i): bool =
+  isInBounds(rect.x.int32, rect.x.int32 + rect.width.int32, rect.y.int32, rect.y.int32 + rect.height.int32, pos)
+
+
+proc isInMapBounds*(pos: Vector2i): bool =
+  isInBounds(0, mapSize.x - 1, 0, mapSize.y - 1, pos)
