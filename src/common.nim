@@ -22,6 +22,8 @@ proc to2F*(v: Vector2i): Vector2 =
 type
   Direction* = enum
     Up, Right, Down, Left
+  PatternDirection* = enum
+    None, North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
 
 proc toOffset*(direction: Direction): Vector2i =
   case direction:
@@ -33,3 +35,24 @@ proc toOffset*(direction: Direction): Vector2i =
     (x: 0, y: 1)
   of Left:
     (x: -1, y: 0)
+
+proc toOffset*(dir: PatternDirection): Vector2i =
+  case dir:
+  of None:
+    (x: 0, y: 0)
+  of North:
+    (x: 0, y: -1)
+  of NorthEast:
+    (x: 1, y: -1)
+  of East:
+    (x: 1, y: 0)
+  of SouthEast:
+    (x: 1, y: 1)
+  of South:
+    (x: 0, y: 1)
+  of SouthWest:
+    (x: -1, y: 1)
+  of West:
+    (x: -1, y: 0)
+  of NorthWest:
+    (x: -1, y: -1)

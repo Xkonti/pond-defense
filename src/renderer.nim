@@ -24,15 +24,6 @@ proc drawFrog*(position: Vector2, rotation: Direction) =
   drawCircle(eyeRightPos, 8, White)
   drawCircle(eyeRightPos, 4, Black)
 
-
-proc drawFly(position: Vector2) =
-  let pos = position.toTileCenter()
-  drawCircle(pos + Vector2(x: -5, y: -5), 10, White)
-  drawCircle(pos + Vector2(x: 5, y: -5), 10, White)
-  drawCircle(pos + Vector2(x: -5, y: 5), 10, White)
-  drawCircle(pos + Vector2(x: 5, y: 5), 10, White)
-  drawRectangle(pos.x.int32 - 4, pos.y.int32 - 11, 8, 22, Black)
-
 proc drawTongue(startPos: Vector2, direction: Direction, lengthInTiles: int) =
   const tongueWidth = 4
   const halfTongueWidth = (tongueWidth / 2).int32

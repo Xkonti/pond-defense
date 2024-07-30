@@ -7,9 +7,11 @@ include common
 include constants
 include utils
 
-
+include collisions
 include renderer
+include entities/frog
 include entities/fly
+include entities/trash
 # ----------------------------------------------------------------------------------------
 # Global Variables Definition
 # ----------------------------------------------------------------------------------------
@@ -29,21 +31,6 @@ game:
   gameSetup:
     # Init more stuff here
     var turn = 0
-    var frogStartPosition: Vector2i = (x: (mapSize.x / 2).int32, y: mapSize.y - 1)
-    var frogPosition: Vector2i = frogStartPosition
-    var frogDirection = Direction.Up
-    var frogMoisture = 1.0 # max is 1.0
-    var frogSatiety = 1.0 # max is 1.0
-    var isFrogDead = true
-    var isTongueOpen = false
-    var maxTongueLength = 3
-    var tongueLength = 1
-
-    var maxFlyCount: int = 2
-    var flySpawnInterval = 10'i32
-    var flySpawnTimer = 0'i32
-    var flySpawnMaxY = (mapSize.y / 2).int32
-    var flies: seq[FlyData] = @[]
     
   gameLoop:
    
@@ -85,22 +72,22 @@ game:
         if isKeyPressed(Up):
           if frogDirection != Direction.Up:
             frogDirection = Direction.Up
-          elif frogPosition.y > 0:
+          elif frogPosition.y > 0 and not checkSolidCollision(frogPosition + Direction.Up.toOffset).isHit:
             frogPosition.y -= 1
         elif isKeyPressed(Down):
           if frogDirection != Direction.Down:
             frogDirection = Direction.Down
-          elif frogPosition.y < mapSize.y - 1:
+          elif frogPosition.y < mapSize.y - 1 and not checkSolidCollision(frogPosition + Direction.Down.toOffset).isHit:
             frogPosition.y += 1
         elif isKeyPressed(Left):
           if frogDirection != Direction.Left:
             frogDirection = Direction.Left
-          elif frogPosition.x > 0:
+          elif frogPosition.x > 0 and not checkSolidCollision(frogPosition + Direction.Left.toOffset).isHit:
             frogPosition.x -= 1
         elif isKeyPressed(Right):
           if frogDirection != Direction.Right:
             frogDirection = Direction.Right
-          elif frogPosition.x < mapSize.x - 1:
+          elif frogPosition.x < mapSize.x - 1 and not checkSolidCollision(frogPosition + Direction.Right.toOffset).isHit:
               frogPosition.x += 1
         else:
           playerMoved = false
@@ -116,8 +103,8 @@ game:
       if playerTookAction:
         turn += 1
 
-        # Process entities
-        for flyData in flies.mitems:
+        # Process fly entities
+        for flyData in flies:
           flyData.move()
         flies = flies.filterIt(isInMapBounds(it.position))
           
@@ -126,6 +113,27 @@ game:
           let newFly = newFly(rand(0'i32..flySpawnMaxY).int32)
           flies.add(newFly)
 
+        # Process trash can entities
+        for trashCanData in trashCans:
+          trashCanData.move()
+        trashCans = trashCans.filterIt(isInMapBounds(it.position)) # Things might roll sideways
+
+        dec trashCanSpawnTimer
+        if trashCanSpawnTimer == 0:
+          let newCan = newTrashCan(rand(1'i32..mapSize.x - 1'i32).int32)
+          trashCans.add(newCan)
+          trashCanSpawnTimer = rand(trashCanMinSpawnInterval..trashCanMaxSpawnInterval)
+
+        # Process trash box entities
+        for trashBoxData in trashBoxes:
+          trashBoxData.move()
+        trashBoxes = trashBoxes.filterIt(isInMapBounds(it.position)) # Things might roll sideways
+
+        dec trashBoxSpawnTimer
+        if trashBoxSpawnTimer == 0:
+          let newBox = newTrashBox(rand(1'i32..mapSize.x - 1'i32).int32)
+          trashBoxes.add(newBox)
+          trashBoxSpawnTimer = rand(trashBoxMinSpawnInterval..trashBoxMaxSpawnInterval)
 
       # If frog is in the pond, refill moisture
       if frogPosition.y == mapSize.y - 1:
@@ -143,11 +151,10 @@ game:
       if isFrogDead:
         drawText("You died!", 10, 10, 20, Red)
         if (drawButton(Rectangle(x: screenWidth / 2 - 200, y: screenHeight / 2 - 15, width: 400, height: 30), "Play again")):
-          frogPosition = frogStartPosition
-          frogDirection = Direction.Up
-          frogMoisture = 1.0
-          frogSatiety = 1.0
+          resetFrog()
           flies = @[]
+          trashCans = @[]
+          trashBoxes = @[]
           isFrogDead = false
       else:
         # Draw world
@@ -158,6 +165,12 @@ game:
         
         for flyData in flies:
           drawFly(flyData.position.toScreenCoords)
+
+        for trashCanData in trashCans:
+          drawTrashCan(trashCanData.position.toScreenCoords)
+
+        for trashBoxData in trashBoxes:
+          drawTrashBox(trashBoxData.position.toScreenCoords)
 
         # Draw UI
         drawMeter(Rectangle(x: 10, y: 10, width: 250, height: 20), frogMoisture, 1.0, Blue)

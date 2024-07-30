@@ -13,7 +13,7 @@ const
     y: (screenHeight / 2) - (mapSize.y / 2) * tileSize
   )
 
-  moistureLoss = 0.02
-  satietyMovementCost = 0.02
-  satietyKickCost = 0.06
-  satietyLickCost = 0.04
+  moistureLoss = 0.002
+  satietyMovementCost = 0.002
+  satietyKickCost = 0.006
+  satietyLickCost = 0.004
