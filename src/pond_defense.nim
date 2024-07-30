@@ -43,11 +43,7 @@ game:
     var flySpawnInterval = 10'i32
     var flySpawnTimer = 0'i32
     var flySpawnMaxY = (mapSize.y / 2).int32
-    var flies: seq[FlyData] = @[
-      newFly(1),
-      newFly(2),
-      newFly(3),
-    ]
+    var flies: seq[FlyData] = @[]
     
   gameLoop:
    
@@ -123,6 +119,7 @@ game:
         # Process entities
         for flyData in flies.mitems:
           flyData.move()
+        flies = flies.filterIt(isInMapBounds(it.position))
           
         flySpawnTimer = (flySpawnTimer + 1) mod flySpawnInterval
         if flySpawnTimer == 0 and flies.len < maxFlyCount:
@@ -150,6 +147,7 @@ game:
           frogDirection = Direction.Up
           frogMoisture = 1.0
           frogSatiety = 1.0
+          flies = @[]
           isFrogDead = false
       else:
         # Draw world
