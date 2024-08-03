@@ -163,14 +163,15 @@ game:
           drawTongue(frogPosition.toScreenCoords, frogDirection, tongueLength)
         drawFrog(frogPosition.toScreenCoords, frogDirection)
         
-        for flyData in flies:
-          drawFly(flyData.position.toScreenCoords)
-
         for trashCanData in trashCans:
           drawTrashCan(trashCanData.position.toScreenCoords)
 
         for trashBoxData in trashBoxes:
           drawTrashBox(trashBoxData.position.toScreenCoords)
+
+        # Draw flies last so they are on top
+        for flyData in flies:
+          drawFly(flyData.position.toScreenCoords)
 
         # Draw UI
         drawMeter(Rectangle(x: 10, y: 10, width: 250, height: 20), frogMoisture, 1.0, Blue)
