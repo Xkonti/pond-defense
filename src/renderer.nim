@@ -1,62 +1,37 @@
+var
+  grassTex: Texture2D
+  pondTex: Texture2D
+
+proc loadTerrainResources() =
+  grassTex = loadTexture("assets/tile_grass.png")
+  pondTex = loadTexture("assets/tile_pond.png")
+
 proc toTileCenter(position: Vector2): Vector2 =
   position + Vector2(x: halfTileSize, y: halfTileSize)
 
-proc drawFrog*(position: Vector2, rotation: Direction) =
-  let pos = position.toTileCenter()
-  drawCircle(pos, halfTileSize - 4, Green)
-  var eyeLeftPos = pos
-  var eyeRightPos = pos
-  case rotation:
-  of Up:
-    eyeLeftPos += Vector2(x: -10, y: -20)
-    eyeRightPos += Vector2(x: 10, y: -20)
-  of Right:
-    eyeLeftPos += Vector2(x: 20, y: -10)
-    eyeRightPos += Vector2(x: 20, y: 10)
-  of Down:
-    eyeLeftPos += Vector2(x: 10, y: 20)
-    eyeRightPos += Vector2(x: -10, y: 20)
-  of Left:
-    eyeLeftPos += Vector2(x: -20, y: 10)
-    eyeRightPos += Vector2(x: -20, y: -10)
-  drawCircle(eyeLeftPos, 8, White)
-  drawCircle(eyeLeftPos, 4, Black)
-  drawCircle(eyeRightPos, 8, White)
-  drawCircle(eyeRightPos, 4, Black)
-
-proc drawTongue(startPos: Vector2, direction: Direction, lengthInTiles: int) =
-  const tongueWidth = 4
-  const halfTongueWidth = (tongueWidth / 2).int32
-  let pos = startPos.toTileCenter()
-  var bounds: Rectangle
-  var tipPos: Vector2
+proc adjustTilePosByDirection(pos: Vector2i, direction: Direction): Vector2i =
   case direction:
   of Up:
-    bounds = Rectangle(x: pos.x - halfTongueWidth.float32, y: pos.y - (lengthInTiles * tileSize).float32, width: tongueWidth.float32, height: lengthInTiles.float32 * tileSize)
-    tipPos = Vector2(x: pos.x, y: pos.y - (lengthInTiles * tileSize).float32)
+    return pos
   of Right:
-    bounds = Rectangle(x: pos.x.float32, y: pos.y - halfTongueWidth.float32, width: lengthInTiles.float32 * tileSize, height: tongueWidth.float32)
-    tipPos = Vector2(x: pos.x + (lengthInTiles * tileSize).float32, y: pos.y)
+    return pos + (x: 1'i32, y: 0'i32)
   of Down:
-    bounds = Rectangle(x: pos.x - halfTongueWidth.float32, y: pos.y.float32, width: tongueWidth.float32, height: lengthInTiles.float32 * tileSize)
-    tipPos = Vector2(x: pos.x, y: pos.y + (lengthInTiles * tileSize).float32)
+    return pos + (x: 1'i32, y: 1'i32)
   of Left:
-    bounds = Rectangle(x: pos.x - (lengthInTiles * tileSize).float32, y: pos.y - halfTongueWidth.float32, width: lengthInTiles.float32 * tileSize, height: tongueWidth.float32)
-    tipPos = Vector2(x: pos.x - (lengthInTiles * tileSize).float32, y: pos.y)
-
-  drawRectangle(bounds, Red)
-  drawCircle(tipPos, 4, Red)
+    return pos + (x: 0'i32, y: 1'i32)
 
 proc drawGround*(startPos: Vector2, sizeInTiles: Vector2i) =
 
+  # Draw grass
   for x in 0 ..< sizeInTiles.x:
     for y in 0 ..< sizeInTiles.y - 1:
       let pos = startPos + Vector2(x: (x * tileSize + 2).float32, y: (y * tileSize + 2).float32)
-      drawRectangle(pos, Vector2(x: tileSize - 4, y: tileSize - 4), Gray)
+      drawTexture(grassTex, pos, 0'f32, 2.0, White)
 
+  # Draw water
   for x in 0 ..< sizeInTiles.x:
     let pos = startPos + Vector2(x: (x * tileSize + 2).float32, y: ((sizeInTiles.y - 1) * tileSize + 2).float32)
-    drawRectangle(pos, Vector2(x: tileSize - 4, y: tileSize - 4), Blue)
+    drawTexture(pondTex, pos, 0'f32, 2.0, White)
 
 proc drawMeter*(screenBounds: Rectangle, value: float32, maxValue: float32, color: Color) =
   const borderWidth = 2

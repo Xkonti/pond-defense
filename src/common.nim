@@ -11,6 +11,11 @@ proc `+`*(v: Vector2i, other: Vector2i): Vector2i =
 proc `+`*(v: Vector2, other: Vector2i): Vector2 =
   Vector2(x: v.x + other.x.float32, y: v.y + other.y.float32)
 
+proc `*`*(v: Vector2i, other: int32): Vector2i =
+  (x: v.x * other, y: v.y * other)
+
+proc `*`*(v: Vector2, other: float32): Vector2 =
+  Vector2(x: v.x * other, y: v.y * other)
 
 
 proc to2I*(v: Vector2): Vector2i =

@@ -12,14 +12,6 @@ include renderer
 include entities/frog
 include entities/fly
 include entities/trash
-# ----------------------------------------------------------------------------------------
-# Global Variables Definition
-# ----------------------------------------------------------------------------------------
-
-
-
-proc toScreenCoords(position: Vector2i): Vector2 =
-  return gridOriginScreenSpace + Vector2(x: position.x.float32 * tileSize, y: position.y.float32 * tileSize)
 
 # ----------------------------------------------------------------------------------------
 # Program main entry point
@@ -31,6 +23,10 @@ game:
   gameSetup:
     # Init more stuff here
     var turn = 0
+    loadTerrainResources()
+    loadFrogResources()
+    loadFlyResources()
+    loadTrashResources()
     
   gameLoop:
    
@@ -159,19 +155,18 @@ game:
       else:
         # Draw world
         drawGround(gridOriginScreenSpace, mapSize)
-        if isTongueOpen:
-          drawTongue(frogPosition.toScreenCoords, frogDirection, tongueLength)
-        drawFrog(frogPosition.toScreenCoords, frogDirection)
         
         for trashCanData in trashCans:
-          drawTrashCan(trashCanData.position.toScreenCoords)
+          drawTrashCan(trashCanData.position)
 
         for trashBoxData in trashBoxes:
-          drawTrashBox(trashBoxData.position.toScreenCoords)
+          drawTrashBox(trashBoxData.position)
+
+        drawFrog()
 
         # Draw flies last so they are on top
         for flyData in flies:
-          drawFly(flyData.position.toScreenCoords)
+          drawFly(flyData.position)
 
         # Draw UI
         drawMeter(Rectangle(x: 10, y: 10, width: 250, height: 20), frogMoisture, 1.0, Blue)

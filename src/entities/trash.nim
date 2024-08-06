@@ -25,6 +25,12 @@ var
   trashBoxSpawnTimer: int32 = rand(trashBoxMinSpawnInterval..trashBoxMaxSpawnInterval)
   trashBoxes: seq[TrashData] = @[]
 
+  trashTexCan: Texture2D
+  trashTexBox: Texture2D
+
+proc loadTrashResources() =
+  trashTexCan = loadTexture("assets/trash_can.png")
+  trashTexBox = loadTexture("assets/trash_box.png")
 
 proc trashSolidCollisionChecker(pos: Vector2i): SolidCollisionData =
   for trashData in trashCans:
@@ -73,13 +79,9 @@ proc move(trashData: TrashData) =
     trashData.isStuck = true
 
 
-proc drawTrashCan(position: Vector2) =
-  let pos = position.toTileCenter()
-  drawCircle(pos + Vector2(x: -15, y: 0), 14, Red)
-  drawCircle(pos + Vector2(x: 15, y: 0), 14, Red)
-  drawRectangle(pos.x.int32 - 15, pos.y.int32 - 14, 30, 28, Red)
+proc drawTrashCan(position: Vector2i) =
+  drawTexture(trashTexCan, position.toScreenCoords, 0'f32, 2.0, White)
 
-proc drawTrashBox(position: Vector2) =
-  let pos = position.toTileCenter()
-  drawRectangle(pos.x.int32 - 15, pos.y.int32 - 15, 30, 30, Yellow)
+proc drawTrashBox(position: Vector2i) =
+  drawTexture(trashTexBox, position.toScreenCoords, 0'f32, 2.0, White)
   

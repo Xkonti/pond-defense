@@ -24,6 +24,8 @@ template draw*(drawCode) =
 template deinitialize*(deinitCode: untyped) =
   deinitCode
 
+proc toScreenCoords(position: Vector2i): Vector2 =
+  return gridOriginScreenSpace + Vector2(x: position.x.float32 * tileSize, y: position.y.float32 * tileSize)
 
 proc isInBounds*(minX, maxX, minY, maxY: int32, pos: Vector2i): bool =
   pos.x >= minX and pos.x <= maxX and pos.y >= minY and pos.y <= maxY
