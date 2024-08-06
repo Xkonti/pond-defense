@@ -30,6 +30,17 @@ type
   PatternDirection* = enum
     None, North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
 
+proc reverse*(direction: Direction): Direction =
+  case direction:
+  of Up:
+    Down
+  of Right:
+    Left
+  of Down:
+    Up
+  of Left:
+    Right
+
 proc toOffset*(direction: Direction): Vector2i =
   case direction:
   of Up:

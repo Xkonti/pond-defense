@@ -11,9 +11,14 @@ type
   CollisionLayer* = enum
     Solids, Tongue
 
+  EntityCommands* = ref object
+    kick*: proc(direction: Direction)
+    pull*: proc(direction: Direction)
+
   SolidCollisionData* = object
     isHit*: bool
     isStuck*: bool
+    commandHandler*: EntityCommands
 
   TongueCollisionData* = object
     isHit*: bool
@@ -25,6 +30,10 @@ type
 
 var solidColissionCheckers: seq[SolidCollisionChecker] = @[]
 var tongueCollisionCheckers: seq[TongueCollisionChecker] = @[]
+
+let emptyEntityCommands = EntityCommands(
+  kick: proc(direction: Direction) = discard
+)
 
 proc registerSolidCollisionChecker*(checker: SolidCollisionChecker) =
   solidColissionCheckers.add(checker)

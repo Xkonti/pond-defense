@@ -60,11 +60,23 @@ game:
         isTongueOpen = false
         playerTookAction = true
 
-      # TODO: Kicking
+      # Kicking
+      if isKeyPressed(Space):
+        isKicking = true
+        let kickDirection = frogDirection.reverse()
+        let kickPosition = frogPosition + kickDirection.toOffset()
+        let collisionData = checkSolidCollision(kickPosition)
+        if collisionData.isHit:
+          collisionData.commandHandler.kick(kickDirection)
+        frogSatiety -= satietyKickCost
+
+      elif isKeyReleased(Space):
+        isKicking = false
+        playerTookAction = true
 
       # Movement
       var playerMoved = true
-      if not isTongueOpen: # Block movement when tongue is open
+      if not isTongueOpen and not isKicking: # Block movement when tongue is open or when kicking
         if isKeyPressed(Up):
           if frogDirection != Direction.Up:
             frogDirection = Direction.Up

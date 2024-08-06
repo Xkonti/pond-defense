@@ -7,6 +7,8 @@ type
     step: int
     variant: TrashVariant
     isStuck: bool
+    isKicked: bool
+    kickDirection: Direction
 
 const trashMovementPatterns: array[TrashVariant, seq[PatternDirection]] = [
   Can: @[South, SouthWest, None, SouthEast, South, SouthEast, South, None, SouthWest],
@@ -32,14 +34,29 @@ proc loadTrashResources() =
   trashTexCan = loadTexture("assets/trash_can.png")
   trashTexBox = loadTexture("assets/trash_box.png")
 
+proc trashKickAction(direction: Direction, data: TrashData) =
+  # If the trash is at the pond, don't let it move
+  if data.position.y == mapSize.y - 1:
+    return
+  # If not in pond, make it flyyyyyy
+  data.isStuck = false
+  data.isKicked = true
+  data.kickDirection = direction
+
 proc trashSolidCollisionChecker(pos: Vector2i): SolidCollisionData =
-  for trashData in trashCans:
+  for index, trashData in trashCans:
     if trashData.position == pos:
-      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck)
-  for trashData in trashBoxes:
+      let data = trashData
+      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck, commandHandler: EntityCommands(
+        kick: proc(direction: Direction) = trashKickAction(direction, data)
+      ))
+  for index, trashData in trashBoxes:
     if trashData.position == pos:
-      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck)
-  return SolidCollisionData(isHit: false, isStuck: false)
+      let data = trashData
+      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck, commandHandler: EntityCommands(
+        kick: proc(direction: Direction) = trashKickAction(direction, data)
+      ))
+  return SolidCollisionData(isHit: false, isStuck: false, commandHandler: emptyEntityCommands)
 
 registerSolidCollisionChecker(trashSolidCollisionChecker)
 
@@ -60,6 +77,19 @@ proc newTrashBox(positionX: int32): TrashData =
 proc move(trashData: TrashData) =
   if trashData.isStuck:
     return
+
+  if trashData.isKicked:
+    let newPosition = trashData.position + trashData.kickDirection.toOffset()
+    let collisionData = if trashData.position != newPosition:
+        checkSolidCollision(newPosition)
+      else:
+        SolidCollisionData(isHit: false, isStuck: false)
+    if not collisionData.isHit:
+      trashData.position = newPosition
+    else:
+      trashData.isKicked = false
+    return
+
   let movementPattern = trashMovementPatterns[trashData.variant]
   if trashData.step == movementPattern.len:
     dec trashData.step
