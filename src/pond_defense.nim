@@ -187,8 +187,8 @@ game:
           drawFly(flyData.position)
 
         # Draw UI
-        drawMeter(Rectangle(x: 10, y: 10, width: 250, height: 20), frogMoisture, 1.0, Blue)
-        drawMeter(Rectangle(x: 10, y: 40, width: 250, height: 20), frogSatiety, 1.0, Yellow)
+        drawMeter("Moisture", Rectangle(x: 10, y: 10, width: 250, height: 20), frogMoisture, 1.0, Blue)
+        drawMeter("Energy", Rectangle(x: 10, y: 90, width: 250, height: 20), frogSatiety, 1.0, Yellow)
 
       drawFPS(screenWidth - 100, 10)
     

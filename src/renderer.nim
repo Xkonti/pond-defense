@@ -45,25 +45,38 @@ proc drawGround*(startPos: Vector2, sizeInTiles: Vector2i) =
     let pos = startPos + Vector2(x: (x * tileSize + 2).float32, y: ((sizeInTiles.y - 1) * tileSize + 2).float32)
     drawTexture(pondTex, pos, 0'f32, 2.0, White)
 
-proc drawMeter*(screenBounds: Rectangle, value: float32, maxValue: float32, color: Color) =
+proc drawTextWithShadow*(text: string, x: int32, y: int32, size: int32, shadowOffset: int32, color: Color, shadowColor: Color) =
+  drawText(text, x + shadowOffset, y + shadowOffset.int32, size, shadowColor)
+  drawText(text, x, y, size, color)
+
+proc drawMeter*(label: string, screenBounds: Rectangle, value: float32, maxValue: float32, color: Color) =
+  drawTextWithShadow(
+      label,
+      screenBounds.x.int32,
+      screenBounds.y.int32,
+      40, 3, White, Black)
   const borderWidth = 2
-  drawRectangle(screenBounds, White)
+  let meterBounds = Rectangle(
+    x: screenBounds.x,
+    y: screenBounds.y + 45,
+    width: screenBounds.width,
+    height: screenBounds.height)
+  drawRectangle(meterBounds, White)
   drawRectangle(
-    screenBounds.x.int32 + borderWidth,
-    screenBounds.y.int32 + borderWidth,
-    screenBounds.width.int32 - (borderWidth * 2),
-    screenBounds.height.int32 - (borderWidth * 2),
+    meterBounds.x.int32 + borderWidth,
+    meterBounds.y.int32 + borderWidth,
+    meterBounds.width.int32 - (borderWidth * 2),
+    meterBounds.height.int32 - (borderWidth * 2),
     Black)
 
-  
   let scale = 1.0 / maxValue # Calculate the multiplier to scale the max value to 1.0
   let scaledValue = value * scale # Scale the value to the range 0.0 to 1.0
-  let barWidth = (screenBounds.width - (borderWidth * 2).float32) * scaledValue
+  let barWidth = (meterBounds.width - (borderWidth * 2).float32) * scaledValue
   drawRectangle(
-    screenBounds.x.int32 + borderWidth,
-    screenBounds.y.int32 + borderWidth,
+    meterBounds.x.int32 + borderWidth,
+    meterBounds.y.int32 + borderWidth,
     barWidth.int32,
-    screenBounds.height.int32 - (borderWidth * 2),
+    meterBounds.height.int32 - (borderWidth * 2),
     color)
 
 type
