@@ -13,6 +13,8 @@ include entities/frog
 include entities/fly
 include entities/trash
 
+include menu
+
 # ----------------------------------------------------------------------------------------
 # Program main entry point
 # ----------------------------------------------------------------------------------------
@@ -152,20 +154,17 @@ game:
       # Detect if the frog is dead
       if frogMoisture <= 0:
         isFrogDead = true
+        showMenu = true
       if frogSatiety <= 0:
         isFrogDead = true
+        showMenu = true
 
     draw:
       clearBackground(Black)
       
-      if isFrogDead:
-        drawText("You died!", 10, 10, 20, Red)
-        if (drawButton(Rectangle(x: screenWidth / 2 - 200, y: screenHeight / 2 - 15, width: 400, height: 30), "Play again")):
-          resetFrog()
-          flies = @[]
-          trashCans = @[]
-          trashBoxes = @[]
-          isFrogDead = false
+      if showMenu:
+        if (not drawMenu()):
+          break;
       else:
         # Draw world
         drawGround(gridOriginScreenSpace, mapSize)

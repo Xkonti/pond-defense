@@ -6,7 +6,7 @@ var
   frogDirection = Direction.Up
   frogMoisture = 1.0 # max is 1.0
   frogSatiety = 1.0 # max is 1.0
-  isFrogDead = true
+  isFrogDead = false
 
   isTongueOpen = false
   maxTongueLength = 3
