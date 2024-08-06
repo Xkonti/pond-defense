@@ -12,8 +12,14 @@ proc drawMenu(): bool =
     drawTextWithShadow(
       "You died!",
       (screenWidth / 2 - 218).int32,
-      (verticalStart - buttonHeight * 2).int32,
+      (verticalStart - buttonHeight * 3).int32,
       100, 6, White, DarkGray)
+
+    drawTextWithShadow(
+      "score: " & $points,
+      (screenWidth / 2 - 200).int32,
+      (verticalStart - buttonHeight).int32,
+      40, 3, White, DarkGray)
 
   # Draw the start/restart button
   let startButtonText = if isFrogDead: "Play again" else: "Start game"
@@ -25,6 +31,7 @@ proc drawMenu(): bool =
     trashBoxes = @[]
     isFrogDead = false
     showMenu = false
+    points = 0
     return true;
 
   # Always draw the exit button

@@ -1,4 +1,5 @@
 var time: float32 = 0
+var points: int64 = 0
 
 type
   Vector2i* = tuple
