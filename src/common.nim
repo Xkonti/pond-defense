@@ -1,3 +1,5 @@
+var time: float32 = 0
+
 type
   Vector2i* = tuple
     x, y: int32

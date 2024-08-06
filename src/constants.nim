@@ -1,6 +1,6 @@
 const
-  screenWidth = 1920
-  screenHeight = 1080
+  screenWidth = 1792
+  screenHeight = 1024
   targetFramerate = 60
   windowName = "Pond defense"
 
@@ -13,7 +13,7 @@ const
     y: (screenHeight / 2) - (mapSize.y / 2) * tileSize
   )
 
-  moistureLoss = 0.002
-  satietyMovementCost = 0.002
-  satietyKickCost = 0.006
-  satietyLickCost = 0.004
+  moistureLoss = 0.015
+  satietyMovementCost = 0.02
+  satietyKickCost = 0.06
+  satietyLickCost = 0.04

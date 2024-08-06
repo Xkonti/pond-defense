@@ -1,10 +1,22 @@
 var
+  backgroundTex: Texture2D
+  backgroundShader: Shader
+  backgroundTimeLoc: ShaderLocation
+  backgroundResolutionLoc: ShaderLocation
+
   grassTex: Texture2D
   pondTex: Texture2D
 
-proc loadTerrainResources() =
+proc loadMainResources() =
+  backgroundTex = loadTexture("assets/ai_background.png")
+  backgroundShader = loadShader("", "assets/shaders/glsl100/trip.fs")
+  backgroundTimeLoc = getShaderLocation(backgroundShader, "iTime")
+  backgroundResolutionLoc = getShaderLocation(backgroundShader, "iResolution")
+  setShaderValue(backgroundShader, backgroundResolutionLoc, [screenWidth.float32, screenHeight.float32])
+
   grassTex = loadTexture("assets/tile_grass.png")
   pondTex = loadTexture("assets/tile_pond.png")
+
 
 proc toTileCenter(position: Vector2): Vector2 =
   position + Vector2(x: halfTileSize, y: halfTileSize)

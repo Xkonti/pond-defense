@@ -25,7 +25,7 @@ game:
   gameSetup:
     # Init more stuff here
     var turn = 0
-    loadTerrainResources()
+    loadMainResources()
     loadFrogResources()
     loadFlyResources()
     loadTrashResources()
@@ -33,6 +33,8 @@ game:
   gameLoop:
    
     update:
+      time += getFrameTime()
+      setShaderValue(backgroundShader, backgroundTimeLoc, time)
 
       ## Handle user input
       
@@ -161,6 +163,9 @@ game:
 
     draw:
       clearBackground(Black)
+      beginShaderMode(backgroundShader)
+      drawTexture(backgroundTex, 0, 0, White)
+      endShaderMode()
       
       if showMenu:
         if (not drawMenu()):
