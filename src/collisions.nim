@@ -11,19 +11,22 @@ type
   CollisionLayer* = enum
     Solids, Tongue
 
-  EntityCommands* = ref object
+  SolidEntityCommands* = ref object
     kick*: proc(direction: Direction)
-    pull*: proc(direction: Direction)
+
+  TongueEntityCommands* = ref object
+    lick*: proc(direction: Direction)
 
   SolidCollisionData* = object
     isHit*: bool
     isStuck*: bool
-    commandHandler*: EntityCommands
+    commandHandler*: SolidEntityCommands
 
   TongueCollisionData* = object
     isHit*: bool
     isStuck*: bool
     isFood*: bool
+    commandHandler*: TongueEntityCommands
 
   SolidCollisionChecker* = proc(pos: Vector2i): SolidCollisionData
   TongueCollisionChecker* = proc(pos: Vector2i): TongueCollisionData
@@ -31,8 +34,12 @@ type
 var solidColissionCheckers: seq[SolidCollisionChecker] = @[]
 var tongueCollisionCheckers: seq[TongueCollisionChecker] = @[]
 
-let emptyEntityCommands = EntityCommands(
-  kick: proc(direction: Direction) = discard
+let emptySolidEntityCommands = SolidEntityCommands(
+  kick: proc(direction: Direction) = discard,
+)
+
+let emptyTongueEntityCommands = TongueEntityCommands(
+  lick: proc(direction: Direction) = discard,
 )
 
 proc registerSolidCollisionChecker*(checker: SolidCollisionChecker) =
@@ -49,7 +56,7 @@ proc checkSolidCollision*(pos: Vector2i): SolidCollisionData =
 
   return SolidCollisionData(isHit: false, isStuck: false)
 
-proc isCollisionTongue*(pos: Vector2i): TongueCollisionData =
+proc checkTongueCollision*(pos: Vector2i): TongueCollisionData =
   for checker in tongueCollisionCheckers:
     let collisionData = checker(pos)
     if collisionData.isHit:

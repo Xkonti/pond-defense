@@ -35,8 +35,8 @@ proc loadFrogResources() =
 
 proc frogSolidCollisionChecker(pos: Vector2i): SolidCollisionData =
   if pos == frogPosition:
-    return SolidCollisionData(isHit: true, isStuck: false, commandHandler: emptyEntityCommands)
-  return SolidCollisionData(isHit: false, isStuck: false, commandHandler: emptyEntityCommands)
+    return SolidCollisionData(isHit: true, isStuck: false, commandHandler: emptySolidEntityCommands)
+  return SolidCollisionData(isHit: false, isStuck: false, commandHandler: emptySolidEntityCommands)
 
 registerSolidCollisionChecker(frogSolidCollisionChecker)
 

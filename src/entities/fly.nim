@@ -19,16 +19,31 @@ var
   flySpawnTimer = 0'i32
   flySpawnMaxY = (mapSize.y / 2).int32
   flies: seq[FlyData] = @[]
+  fliesForRemoval: seq[FlyData] = @[]
 
   flyTex: Texture2D
 
 proc loadFlyResources() =
   flyTex = loadTexture("assets/fly.png")
 
+proc removeDeadFlies() =
+  for flyData in fliesForRemoval:
+    for index, liveFlyData in flies:
+      if flyData == liveFlyData:
+        flies.delete(index)
+        break
+  fliesForRemoval = @[]
+
+proc flyLickAction(direction: Direction, flyData: FlyData) =
+  fliesForRemoval.add(flyData)
+
 proc flyTongueCollisionChecker(pos: Vector2i): TongueCollisionData =
   for flyData in flies:
     if flyData.position == pos:
-      return TongueCollisionData(isHit: true, isStuck: false, isFood: true)
+      let data = flyData
+      return TongueCollisionData(isHit: true, isStuck: false, isFood: true, commandHandler: TongueEntityCommands(
+        lick: proc(direction: Direction) = flyLickAction(direction, data)
+      ))
 
 registerTongueCollisionChecker(flyTongueCollisionChecker)
 

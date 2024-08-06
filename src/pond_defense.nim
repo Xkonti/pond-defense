@@ -42,18 +42,20 @@ game:
         # Calculate possible length
         tongueLength = 0
         var currentCheckPos = frogPosition
-        var isHit = false
-        while not isHit and tongueLength < maxTongueLength:
+        var foundFood = false
+        while tongueLength < maxTongueLength:
           tongueLength += 1
           currentCheckPos = currentCheckPos + frogDirection.toOffset()
-          for index, flyData in flies:
-            if currentCheckPos == flyData.position:
-              frogSatiety = 1.0
-              isHit = true
-              flies.delete(index)
-              break
+          let collisionData = checkTongueCollision(currentCheckPos)
+          if collisionData.isHit:
+            collisionData.commandHandler.lick(frogDirection)
+            if collisionData.isFood:
+              foundFood = true
+            break
         
-        if not isHit:
+        if foundFood:
+          frogSatiety = 1.0
+        else:
           frogSatiety -= satietyLickCost
         
       elif isKeyReleased(Z):
@@ -186,5 +188,8 @@ game:
 
       drawFPS(screenWidth - 100, 10)
     
+    # After each frame, remove any dead entities
+    removeDeadFlies()
+
   deinitialize:
     discard

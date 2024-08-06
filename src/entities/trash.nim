@@ -43,22 +43,51 @@ proc trashKickAction(direction: Direction, data: TrashData) =
   data.isKicked = true
   data.kickDirection = direction
 
+proc trashLickAction(direction: Direction, data: TrashData) =
+  # If the trash is at the pond, don't let it move
+  if data.position.y == mapSize.y - 1:
+    return
+  # If not in pond, make it move towards the frog 1 tile
+  data.isStuck = false
+  let newPosition = data.position + direction.reverse().toOffset()
+  # Check if possible to move to the new position
+  let collisionData = checkSolidCollision(newPosition)
+  if not collisionData.isHit:
+    data.position = newPosition
+
 proc trashSolidCollisionChecker(pos: Vector2i): SolidCollisionData =
   for index, trashData in trashCans:
     if trashData.position == pos:
       let data = trashData
-      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck, commandHandler: EntityCommands(
-        kick: proc(direction: Direction) = trashKickAction(direction, data)
+      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck, commandHandler: SolidEntityCommands(
+        kick: proc(direction: Direction) = trashKickAction(direction, data),
       ))
   for index, trashData in trashBoxes:
     if trashData.position == pos:
       let data = trashData
-      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck, commandHandler: EntityCommands(
-        kick: proc(direction: Direction) = trashKickAction(direction, data)
+      return SolidCollisionData(isHit: true, isStuck: trashData.isStuck, commandHandler: SolidEntityCommands(
+        kick: proc(direction: Direction) = trashKickAction(direction, data),
       ))
-  return SolidCollisionData(isHit: false, isStuck: false, commandHandler: emptyEntityCommands)
+  return SolidCollisionData(isHit: false, isStuck: false, commandHandler: emptySolidEntityCommands)
 
 registerSolidCollisionChecker(trashSolidCollisionChecker)
+
+proc trashTongueCollisionChecker(pos: Vector2i): TongueCollisionData =
+  for index, trashData in trashCans:
+    if trashData.position == pos:
+      let data = trashData
+      return TongueCollisionData(isHit: true, isStuck: trashData.isStuck, isFood: false, commandHandler: TongueEntityCommands(
+        lick: proc(direction: Direction) = trashLickAction(direction, data),
+      ))
+  for index, trashData in trashBoxes:
+    if trashData.position == pos:
+      let data = trashData
+      return TongueCollisionData(isHit: true, isStuck: trashData.isStuck, isFood: false, commandHandler: TongueEntityCommands(
+        lick: proc(direction: Direction) = trashLickAction(direction, data),
+      ))
+  return TongueCollisionData(isHit: false, isStuck: false, isFood: false, commandHandler: emptyTongueEntityCommands)
+
+registerTongueCollisionChecker(trashTongueCollisionChecker)
 
 proc newTrashCan(positionX: int32): TrashData =
   result = TrashData(
