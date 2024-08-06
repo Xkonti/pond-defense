@@ -18,6 +18,9 @@ uniform vec2 iResolution;
 // Constants
 const float PI = 3.14159265359;
 
+// Pixelation factor (increase for more pixelation)
+const float pixelSize = 15.0;
+
 // Function to create a rotation matrix
 mat2 rotate2D(float angle) {
     return mat2(cos(angle), -sin(angle),
@@ -58,10 +61,13 @@ vec3 psychedelicPattern(vec2 uv, float time) {
 }
 
 void main() {
-    vec2 uv = fragTexCoord;
-    vec3 color = psychedelicPattern(uv, iTime);
+    // Calculate pixelated UV coordinates
+    vec2 pixelatedUV = floor(fragTexCoord * iResolution / pixelSize) * pixelSize / iResolution;
     
-    // Mix with the original texture
-    vec4 texColor = texture(texture0, fragTexCoord);
+    // Generate psychedelic pattern with pixelated coordinates
+    vec3 color = psychedelicPattern(pixelatedUV, iTime);
+    
+    // Mix with the original texture (also pixelated)
+    vec4 texColor = texture(texture0, pixelatedUV);
     finalColor = vec4(mix(texColor.rgb, color, 0.8), texColor.a) * colDiffuse * fragColor;
 }
