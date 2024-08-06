@@ -11,7 +11,7 @@ type
     kickDirection: Direction
 
 const trashMovementPatterns: array[TrashVariant, seq[PatternDirection]] = [
-  Can: @[SouthWest, SouthWest, None, SouthEast, SouthEast, None],
+  Can: @[SouthWest, SouthWest, None, None, SouthEast, SouthEast, None, None],
   Box: @[None, South, None]
 ]
 
