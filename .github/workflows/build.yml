@@ -102,9 +102,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download all artifacts
+    - name: Download archive artifacts only
       uses: actions/download-artifact@v4
       with:
+        pattern: "*-archive"
         path: artifacts
     
     - name: Create GitHub Release
@@ -114,7 +115,7 @@ jobs:
         name: Release ${{ github.event.inputs.version }}
         draft: false
         prerelease: false
-        files: artifacts/**/*
+        files: artifacts/**/*.tar.gz artifacts/**/*.zip
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
