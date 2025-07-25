@@ -108,6 +108,22 @@ jobs:
         pattern: "*-archive"
         path: artifacts
     
+    - name: List all downloaded artifacts
+      run: |
+        echo "All downloaded artifacts:"
+        find artifacts -type f
+        echo "Archive files only:"
+        find artifacts -type f -name "*.tar.gz" -o -name "*.zip"
+    
+    - name: Check if release already exists
+      run: |
+        if gh release view ${{ github.event.inputs.version }} > /dev/null 2>&1; then
+          echo "Release ${{ github.event.inputs.version }} already exists, deleting it first"
+          gh release delete ${{ github.event.inputs.version }} --yes
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -115,7 +131,9 @@ jobs:
         name: Release ${{ github.event.inputs.version }}
         draft: false
         prerelease: false
-        files: artifacts/**/*.tar.gz artifacts/**/*.zip
+        files: |
+          artifacts/**/*.tar.gz
+          artifacts/**/*.zip
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
