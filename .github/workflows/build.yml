@@ -13,6 +13,10 @@ on:
         default: true
         type: boolean
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   build:
     strategy:
