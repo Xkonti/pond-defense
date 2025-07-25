@@ -1,0 +1,107 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+      create_release:
+        description: 'Create GitHub release'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            artifact: pond_defense
+          - os: windows-latest
+            target: windows-x64
+            artifact: pond_defense.exe
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Nim
+      uses: jiro4989/setup-nim-action@v2
+      with:
+        nim-version: '2.0.x'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Cache nimble packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nimble
+        key: ${{ runner.os }}-nimble-${{ hashFiles('*.nimble') }}
+        restore-keys: |
+          ${{ runner.os }}-nimble-
+      if: runner.os != 'Windows'
+    
+    - name: Install Linux dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential git libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+    
+    - name: Install dependencies
+      run: nimble install -Y
+    
+    - name: Build game
+      run: nimble build -Y --verbose
+    
+    - name: Create release artifact
+      run: |
+        mkdir -p release/${{ matrix.target }}
+        cp ${{ matrix.artifact }} release/${{ matrix.target }}/
+        cp -r assets release/${{ matrix.target }}/
+        cp README.md release/${{ matrix.target }}/
+        cp LICENSE release/${{ matrix.target }}/
+      shell: bash
+    
+    - name: Create archive (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cd release
+        version="${{ github.event.inputs.version || 'dev' }}"
+        tar -czf pond-defense-${version}-${{ matrix.target }}.tar.gz ${{ matrix.target }}
+    
+    - name: Create archive (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd release
+        version="${{ github.event.inputs.version || 'dev' }}"
+        7z a pond-defense-${version}-${{ matrix.target }}.zip ${{ matrix.target }}
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: pond-defense-${{ matrix.target }}
+        path: release/${{ matrix.target }}
+    
+    - name: Upload release archives
+      uses: actions/upload-artifact@v4
+      with:
+        name: pond-defense-${{ github.event.inputs.version || 'dev' }}-${{ matrix.target }}-archive
+        path: release/pond-defense-*-${{ matrix.target }}.*
+    
+    - name: Create GitHub Release
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.event.inputs.version }}
+        name: Release ${{ github.event.inputs.version }}
+        draft: false
+        prerelease: false
+        files: release/pond-defense-*-${{ matrix.target }}.*
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
