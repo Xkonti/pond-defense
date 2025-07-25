@@ -26,6 +26,7 @@ jobs:
             artifact: pond_defense.exe
     
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     
     steps:
     - name: Checkout code
@@ -56,7 +57,7 @@ jobs:
       run: nimble install -Y
     
     - name: Build game
-      run: nimble build -Y --verbose
+      run: nimble build -Y --verbose --threads:on
     
     - name: Create release artifact
       run: |
@@ -93,15 +94,24 @@ jobs:
         name: pond-defense-${{ github.event.inputs.version || 'dev' }}-${{ matrix.target }}-archive
         path: release/pond-defense-*-${{ matrix.target }}.*
     
+  create_release:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
     - name: Create GitHub Release
-      if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.event.inputs.version }}
         name: Release ${{ github.event.inputs.version }}
         draft: false
         prerelease: false
-        files: release/pond-defense-*-${{ matrix.target }}.*
+        files: artifacts/**/*
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
