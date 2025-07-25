@@ -72,15 +72,14 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         cd release
-        version="${{ github.event.inputs.version || 'dev' }}"
-        tar -czf pond-defense-${version}-${{ matrix.target }}.tar.gz ${{ matrix.target }}
+        tar -czf pond-defense-${{ github.event.inputs.version || 'dev' }}-${{ matrix.target }}.tar.gz ${{ matrix.target }}
     
     - name: Create archive (Windows)
       if: matrix.os == 'windows-latest'
       run: |
         cd release
-        version="${{ github.event.inputs.version || 'dev' }}"
-        7z a pond-defense-${version}-${{ matrix.target }}.zip ${{ matrix.target }}
+        7z a pond-defense-${{ github.event.inputs.version || 'dev' }}-${{ matrix.target }}.zip ${{ matrix.target }}
+      shell: cmd
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
